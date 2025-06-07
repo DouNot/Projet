@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Mes biens</h1>
+<a href="{% url 'property_add' %}" class="px-3 py-1 bg-blue-600 text-white rounded">
+  Ajouter un bien
+</a>
+
+<ul class="mt-4">
+  {% for p in properties %}
+    <li class="border p-2 my-2 rounded">
+      <a class="font-semibold text-blue-700" href="{% url 'property_detail' p.pk %}">
+        {{ p.address }}
+      </a> — {{ p.surface }} m²
+      <br>
+      <a class="text-blue-500" href="{% url 'loan_add' %}?property={{ p.id }}">+ Prêt</a> |
+      <a class="text-blue-500" href="{% url 'lease_add' %}?property={{ p.id }}">+ Bail</a>
+    </li>
+  {% empty %}
+    <li>Aucun bien pour l’instant.</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

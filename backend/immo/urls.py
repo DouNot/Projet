@@ -20,21 +20,20 @@ from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from django.conf.urls.static import static
 
-
-# --- vues minimales ---
+# --- petites vues utilitaires ---
 def health(request):
     return JsonResponse({"status": "ok"})
 
-
 def home(request):
     return HttpResponse(
-        "<h1>Bienvenue !</h1><p>Votre inscription a réussi et l'application tourne.</p>"
+        "<h1>Bienvenue !</h1>"
+        "<p><a href='/properties/'>Accéder à mes biens</a></p>"
     )
 
-
 urlpatterns = [
-    path("", home, name="home"),                  # page d’accueil
+    path("", include("core.urls")),          # ← routes self-service
+    path("", home, name="home"),             # page d’accueil simple
     path("admin/", admin.site.urls),
-    path("accounts/", include("allauth.urls")),   # signup/login/logout
+    path("accounts/", include("allauth.urls")),
     path("health/", health),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

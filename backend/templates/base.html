@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>{% block title %}Mon Immo{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+  <header class="bg-blue-600 text-white p-4">
+    <h1 class="text-xl font-bold">
+      <a href="/" class="hover:underline">Mon Immo</a>
+    </h1>
+  </header>
+
+  <main class="max-w-3xl mx-auto p-4">
+    {% if messages %}
+      <ul class="mb-4">
+        {% for m in messages %}
+          <li class="bg-green-100 border-l-4 border-green-600 p-2 my-2">{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

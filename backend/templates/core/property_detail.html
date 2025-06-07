@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="mb-2">
+  <a href="{% url 'property_edit' property.pk %}" class="text-blue-600 mr-3">✏️ Modifier</a>
+  <a href="{% url 'property_delete' property.pk %}" class="text-red-700">🗑️ Supprimer</a>
+</div>
+
+<a href="{% url 'property_list' %}" class="text-blue-600">&larr; Retour à la liste</a>
+
+<h1 class="text-2xl font-bold mt-2 mb-4">{{ property.address }}</h1>
+
+{% if property.photo %}
+  <img src="{{ property.photo.url }}" alt="Photo du bien" class="w-full max-w-md rounded shadow mb-4">
+{% endif %}
+
+<ul class="mb-4">
+  <li><strong>Surface :</strong> {{ property.surface }} m²</li>
+  <li><strong>Prix d’achat :</strong> {{ property.purchase_price }} €</li>
+</ul>
+
+<h2 class="text-xl font-semibold mt-6 mb-2">Prêts associés</h2>
+{% if property.loans.all %}
+  <ul class="list-disc pl-5">
+    {% for loan in property.loans.all %}
+      <li>{{ loan.bank }} — {{ loan.amount }} € à {{ loan.rate }} % sur {{ loan.duration_months }} mois</li>
+    {% empty %}
+      <li>Aucun prêt.</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<h2 class="text-xl font-semibold mt-6 mb-2">Baux en cours</h2>
+{% if property.leases.all %}
+  <ul class="list-disc pl-5">
+    {% for lease in property.leases.all %}
+      <li>{{ lease.tenant_name }} — {{ lease.rent }} € ({{ lease.start_date }} → {{ lease.end_date|default:"-" }})
+        {% if lease.lease_pdf %} (<a href="{{ lease.lease_pdf.url }}" class="text-blue-600">PDF</a>){% endif %}
+      </li>
+    {% empty %}
+      <li>Aucun bail.</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}

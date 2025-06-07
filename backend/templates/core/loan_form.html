@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">Ajouter un prêt</h1>
+
+<form method="post" enctype="multipart/form-data" class="space-y-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="px-4 py-1 bg-blue-600 text-white rounded">Enregistrer</button>
+</form>
+{% endblock %}

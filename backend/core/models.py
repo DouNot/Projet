@@ -45,14 +45,14 @@ class Loan(models.Model):
 
 
 class Lease(models.Model):
-    property = models.ForeignKey(
-        Property, on_delete=models.CASCADE, related_name="leases"
-    )
-    tenant_name = models.CharField(max_length=120)
-    rent = models.DecimalField(max_digits=10, decimal_places=2)
+    property      = models.ForeignKey(Property, related_name="leases", on_delete=models.CASCADE)
+    tenant_name   = models.CharField(max_length=120)
+    rent          = models.DecimalField(max_digits=10, decimal_places=2)
     start_date = models.DateField()
-    end_date = models.DateField(blank=True, null=True)
-    lease_pdf = models.FileField(upload_to="leases/")
+    end_date   = models.DateField(blank=True, null=True)   # ← redevenu facultatif
+    lease_pdf  = models.FileField(upload_to="leases/", blank=True, null=True)
+
 
     def __str__(self):
-        return f"Bail {self.tenant_name} – {self.property.address}"
+        return f"Bail {self.property.address} ({self.tenant_name})"
+
