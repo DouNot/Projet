@@ -16,17 +16,25 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.http import JsonResponse
-from .views import home          # ← l’import existe désormais
+from django.http import JsonResponse, HttpResponse
+from django.conf import settings
+from django.conf.urls.static import static
 
+
+# --- vues minimales ---
 def health(request):
     return JsonResponse({"status": "ok"})
 
+
+def home(request):
+    return HttpResponse(
+        "<h1>Bienvenue !</h1><p>Votre inscription a réussi et l'application tourne.</p>"
+    )
+
+
 urlpatterns = [
-    path("", home, name="home"),  # ← racine de l’appli
+    path("", home, name="home"),                  # page d’accueil
     path("admin/", admin.site.urls),
-    path("accounts/", include("allauth.urls")),
+    path("accounts/", include("allauth.urls")),   # signup/login/logout
     path("health/", health),
-]
-  git config --global user.email "you@example.com"
-  git config --global user.name "Your Name"
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

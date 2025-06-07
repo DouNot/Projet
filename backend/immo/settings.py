@@ -1,6 +1,6 @@
 """
 Paramètres Django – projet immo
-Docker + PostgreSQL + Allauth
+Docker + PostgreSQL + Allauth + Core models
 """
 
 from pathlib import Path
@@ -19,16 +19,19 @@ ALLOWED_HOSTS = ["*"]
 # APPS
 # ───────────────────────────────
 INSTALLED_APPS = [
+    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Allauth ↓↓↓
+    # Allauth
     "django.contrib.sites",
     "allauth",
     "allauth.account",
+    # Domaine
+    "core",
 ]
 
 # ───────────────────────────────
@@ -40,11 +43,10 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "allauth.account.middleware.AccountMiddleware",     # ← ajouté
+    "allauth.account.middleware.AccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 
 # ───────────────────────────────
 # URL & WSGI
@@ -58,7 +60,7 @@ WSGI_APPLICATION = "immo.wsgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [],           # ajouter vos templates custom ici
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -94,11 +96,14 @@ USE_I18N = True
 USE_TZ = True
 
 # ───────────────────────────────
-# FICHIERS STATIQUES
+# FICHIERS STATIQUES & MEDIAS
 # ───────────────────────────────
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # ───────────────────────────────
 # DJANGO-ALLAUTH
@@ -106,14 +111,15 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",                # admin
-    "allauth.account.auth_backends.AuthenticationBackend",      # allauth
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "optional"   # "mandatory" pour forcer validation
-LOGIN_REDIRECT_URL = "/health/"
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # e-mails en console
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+LOGIN_REDIRECT_URL = "/"              # après login/inscription
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # ───────────────────────────────
 # AUTRES

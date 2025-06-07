@@ -3,3 +3,4 @@ gunicorn
 psycopg2-binary
 python-decouple          # pour lire les variables d’environnement
 django-allauth
+Pillow
