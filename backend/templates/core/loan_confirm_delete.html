@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">Supprimer le prêt</h1>
+<p>Confirmer la suppression du prêt <strong>{{ object.bank }} — {{ object.amount }} €</strong> ?</p>
+
+<form method="post" class="mt-4">
+  {% csrf_token %}
+  <button class="px-3 py-1 bg-red-600 text-white rounded">Confirmer</button>
+  <a href="{% url 'property_detail' object.property.pk %}" class="ml-4 text-blue-600">Annuler</a>
+</form>
+{% endblock %}

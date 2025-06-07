@@ -1,4 +1,3 @@
-# core/views.py  – imports regroupés
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -11,13 +10,9 @@ from .forms  import PropertyForm, LoanForm, LeaseForm
 
 
 # ──────────────────────────────────────────────
-#  Helpers
+#  Helper : garantir qu’une LegalEntity existe
 # ──────────────────────────────────────────────
 def get_or_create_entity_for(user):
-    """
-    Renvoie la première LegalEntity de l'utilisateur, ou la crée
-    s'il n'en possède pas encore (ex. comptes créés avant le signal).
-    """
     entity = user.entities.first()
     if entity is None:
         entity = LegalEntity.objects.create(
@@ -29,7 +24,7 @@ def get_or_create_entity_for(user):
 
 
 # ──────────────────────────────────────────────
-#  Property
+#  Property (CRUD)
 # ──────────────────────────────────────────────
 class PropertyList(LoginRequiredMixin, ListView):
     template_name = "core/property_list.html"
@@ -50,6 +45,34 @@ class PropertyCreate(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+class PropertyDetail(LoginRequiredMixin, DetailView):
+    model = Property
+    template_name = "core/property_detail.html"
+    context_object_name = "property"
+
+    def get_queryset(self):
+        return get_or_create_entity_for(self.request.user).properties.all()
+
+
+class PropertyUpdate(LoginRequiredMixin, UpdateView):
+    model = Property
+    form_class = PropertyForm
+    template_name = "core/property_form.html"
+    success_url = reverse_lazy("property_list")
+
+    def get_queryset(self):
+        return get_or_create_entity_for(self.request.user).properties.all()
+
+
+class PropertyDelete(LoginRequiredMixin, DeleteView):
+    model = Property
+    template_name = "core/property_confirm_delete.html"
+    success_url = reverse_lazy("property_list")
+
+    def get_queryset(self):
+        return get_or_create_entity_for(self.request.user).properties.all()
+
+
 # ──────────────────────────────────────────────
 #  Loan
 # ──────────────────────────────────────────────
@@ -59,12 +82,37 @@ class LoanCreate(LoginRequiredMixin, CreateView):
     template_name = "core/loan_form.html"
     success_url = reverse_lazy("property_list")
 
-    def get_form_kwargs(self):
-        # s'assure que l'entité existe avant de filtrer la queryset
-        get_or_create_entity_for(self.request.user)
-        kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
-        return kwargs
+    # on récupère le bien depuis l’URL
+    def dispatch(self, request, *args, **kwargs):
+        self.property = get_or_create_entity_for(request.user).properties.get(
+            pk=kwargs["property_pk"]
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.property = self.property
+        return super().form_valid(form)
+
+
+class LoanUpdate(LoginRequiredMixin, UpdateView):
+    model = Loan
+    form_class = LoanForm
+    template_name = "core/loan_form.html"
+    success_url = reverse_lazy("property_list")
+
+    def get_queryset(self):
+        entity = get_or_create_entity_for(self.request.user)
+        return Loan.objects.filter(property__entity=entity)   # ← FIX
+
+
+class LoanDelete(LoginRequiredMixin, DeleteView):
+    model = Loan
+    template_name = "core/loan_confirm_delete.html"
+    success_url = reverse_lazy("property_list")
+
+    def get_queryset(self):
+        entity = get_or_create_entity_for(self.request.user)
+        return Loan.objects.filter(property__entity=entity)   # ← FIX
 
 
 # ──────────────────────────────────────────────
@@ -76,45 +124,33 @@ class LeaseCreate(LoginRequiredMixin, CreateView):
     template_name = "core/lease_form.html"
     success_url = reverse_lazy("property_list")
 
-    def get_form_kwargs(self):
-        get_or_create_entity_for(self.request.user)
-        kwargs = super().get_form_kwargs()
-        kwargs["user"] = self.request.user
-        return kwargs
+    def dispatch(self, request, *args, **kwargs):
+        self.property = get_or_create_entity_for(request.user).properties.get(
+            pk=kwargs["property_pk"]
+        )
+        return super().dispatch(request, *args, **kwargs)
 
-# ──────────────────────────────────────────────
-#  Property : vue détail
-# ──────────────────────────────────────────────
-class PropertyDetail(LoginRequiredMixin, DetailView):
-    model = Property
-    template_name = "core/property_detail.html"
-    context_object_name = "property"
-
-    def get_queryset(self):
-        # sécurité : l’utilisateur ne peut voir que SES propres biens
-        return self.request.user.entities.first().properties.all()
+    def form_valid(self, form):
+        form.instance.property = self.property
+        return super().form_valid(form)
 
 
-# ──────────────────────────────────────────────
-#  Property : Property Update
-# ──────────────────────────────────────────────
-
-class PropertyUpdate(LoginRequiredMixin, UpdateView):
-    model = Property
-    form_class = PropertyForm
-    template_name = "core/property_form.html"       # on réutilise le même
+class LeaseUpdate(LoginRequiredMixin, UpdateView):
+    model = Lease
+    form_class = LeaseForm
+    template_name = "core/lease_form.html"
     success_url = reverse_lazy("property_list")
 
     def get_queryset(self):
-        return self.request.user.entities.first().properties.all()
+        entity = get_or_create_entity_for(self.request.user)
+        return Lease.objects.filter(property__entity=entity)  # ← FIX
 
-# ──────────────────────────────────────────────
-#  Property : Property Delete
-# ──────────────────────────────────────────────
-class PropertyDelete(LoginRequiredMixin, DeleteView):
-    model = Property
-    template_name = "core/property_confirm_delete.html"
+
+class LeaseDelete(LoginRequiredMixin, DeleteView):
+    model = Lease
+    template_name = "core/lease_confirm_delete.html"
     success_url = reverse_lazy("property_list")
 
     def get_queryset(self):
-        return self.request.user.entities.first().properties.all()
+        entity = get_or_create_entity_for(self.request.user)
+        return Lease.objects.filter(property__entity=entity)  # ← FIX

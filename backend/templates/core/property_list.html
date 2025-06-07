@@ -1,23 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
 <h1 class="text-2xl font-bold mb-4">Mes biens</h1>
-<a href="{% url 'property_add' %}" class="px-3 py-1 bg-blue-600 text-white rounded">
-  Ajouter un bien
+
+<a href="{% url 'property_add' %}"
+   class="inline-block mb-4 px-3 py-1 bg-blue-600 text-white rounded">
+  + Ajouter un bien
 </a>
 
-<ul class="mt-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
   {% for p in properties %}
-    <li class="border p-2 my-2 rounded">
-      <a class="font-semibold text-blue-700" href="{% url 'property_detail' p.pk %}">
-        {{ p.address }}
-      </a> — {{ p.surface }} m²
-      <br>
-      <a class="text-blue-500" href="{% url 'loan_add' %}?property={{ p.id }}">+ Prêt</a> |
-      <a class="text-blue-500" href="{% url 'lease_add' %}?property={{ p.id }}">+ Bail</a>
-    </li>
+    <a href="{% url 'property_detail' p.pk %}"
+       class="block border rounded overflow-hidden hover:shadow-lg bg-white">
+      {% if p.photo %}
+        <img src="{{ p.photo.url }}" alt="" class="h-40 w-full object-cover">
+      {% else %}
+        <div class="h-40 flex items-center justify-center bg-gray-200 text-gray-500">
+          (pas de photo)
+        </div>
+      {% endif %}
+      <div class="p-2 text-center font-medium">{{ p.address }}</div>
+    </a>
   {% empty %}
-    <li>Aucun bien pour l’instant.</li>
+    <p>Aucun bien enregistré.</p>
   {% endfor %}
-</ul>
-
+</div>
 {% endblock %}
